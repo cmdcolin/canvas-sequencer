@@ -2,21 +2,21 @@
  * Author: Michael van der Kamp
  * Date: July/August, 2018
  *
- * This file defines the low level 'CanvasAtom' for use by a CanvasSequence.
+ * This file defines the low level 'PathAtom' for use by a PathSequence.
  *
- * A CanvasAtom is a unit of execution in a CanvasSequence. It comes in two
+ * A PathAtom is a unit of execution in a PathSequence. It comes in two
  * flavours: one for describing a method call, one for describing a property
  * assignment.
  */
-;('use strict')
-const PathSequence = require('./PathSequence')
+
+'use strict'
 
 /**
- * The types of CanvasAtoms that are available.
+ * The types of PathAtoms that are available.
  *
  * @enum {string}
  * @readonly
- * @lends CanvasAtom
+ * @lends PathAtom
  */
 const TYPES = {
   /** @const */ METHOD: 'method',
@@ -45,18 +45,18 @@ class Atom {
      * @private
      * @type {*[]}
      */
-    this.args = JSON.parse(JSON.stringify(args))
+    this.args = args
   }
 }
 
 /**
- * A MethodCanvasAtom is used for canvas context methods. The arguments will be
+ * A MethodPathAtom is used for canvas context methods. The arguments will be
  * treated as an actual array, all of which will be passed to the method when
  * the atom is executed.
  *
  * @extends Atom
  */
-class MethodCanvasAtom extends Atom {
+class MethodPathAtom extends Atom {
   constructor(inst, args) {
     super(inst, args)
 
@@ -75,27 +75,18 @@ class MethodCanvasAtom extends Atom {
    * @param {CanvasRenderingContext2D} context
    */
   execute(context) {
-    if (this.args[0].isPath) {
-      const path = new Path2D()
-      const hydrateSeq = new PathSequence()
-      const sequence = this.args[0].sequence
-      hydrateSeq.fromJSON({ sequence })
-      hydrateSeq.execute(path)
-      context[this.inst](path)
-    } else {
-      context[this.inst](...this.args)
-    }
+    context[this.inst](...this.args)
   }
 }
 
 /**
- * A PropertyCanvasAtom is used for canvas context properties (a.k.a. fields).
+ * A PropertyPathAtom is used for canvas context properties (a.k.a. fields).
  * Only the first argument will be used, and will be the value assigned to the
  * field.
  *
  * @extends Atom
  */
-class PropertyCanvasAtom extends Atom {
+class PropertyPathAtom extends Atom {
   constructor(inst, args) {
     super(inst, args)
     this.type = TYPES.PROPERTY
@@ -112,25 +103,25 @@ class PropertyCanvasAtom extends Atom {
 }
 
 /*
- * This object is for demultiplexing types in the CanvasAtom constructor.
+ * This object is for demultiplexing types in the PathAtom constructor.
  * Defined outside the constructor so it doesn't need to be redefined every
  * time a new atom is constructed. Defined outside the class so that it is not
  * externally exposed.
  */
 const atomOf = {
-  [TYPES.METHOD]: MethodCanvasAtom,
-  [TYPES.PROPERTY]: PropertyCanvasAtom,
+  [TYPES.METHOD]: MethodPathAtom,
+  [TYPES.PROPERTY]: PropertyPathAtom,
 }
 
 /**
- * The exposed CanvasAtom class. Results in the instantiation of either a
- * MethodCanvasAtom or a PropertyCanvasAtom, depending on the given type.
+ * The exposed PathAtom class. Results in the instantiation of either a
+ * MethodPathAtom or a PropertyPathAtom, depending on the given type.
  *
- * @param {string} type - Either CanvasAtom.METHOD or CanvasAtom.PROPERTY.
+ * @param {string} type - Either PathAtom.METHOD or PathAtom.PROPERTY.
  * @param {string} inst - The canvas context instruction.
  * @param {*[]} args - The arguments to the instruction.
  */
-class CanvasAtom {
+class PathAtom {
   constructor(type, inst, args) {
     return new atomOf[type](inst, args)
   }
@@ -141,7 +132,7 @@ class CanvasAtom {
  * immutable properties on the class.
  */
 Object.entries(TYPES).forEach(([p, v]) => {
-  Object.defineProperty(CanvasAtom, p, {
+  Object.defineProperty(PathAtom, p, {
     value: v,
     configurable: false,
     enumerable: true,
@@ -149,4 +140,4 @@ Object.entries(TYPES).forEach(([p, v]) => {
   })
 })
 
-module.exports = CanvasAtom
+module.exports = PathAtom

@@ -1,6 +1,6 @@
 /*
  * Access point for npm.
- */ 'use strict';
+ */ "use strict";
 var $663f930907ca9f24$exports = {};
 /*
  * Author: Michael van der Kamp
@@ -9,16 +9,231 @@ var $663f930907ca9f24$exports = {};
  * This file provides the definition of the CanvasSequence class.
  */ 'use strict';
 var $9a8fdc9f7382f5d6$exports = {};
+'use strict';
+var $f1e5ec5db88025fc$exports = {};
 /*
  * Author: Michael van der Kamp
  * Date: July/August, 2018
  *
- * This file defines the low level 'CanvasAtom' for use by a CanvasSequence.
+ * This file provides the definition of the PathSequence class.
+ */ 'use strict';
+var $cd9b4ae63795f461$exports = {};
+/*
+ * Author: Michael van der Kamp
+ * Date: July/August, 2018
  *
- * A CanvasAtom is a unit of execution in a CanvasSequence. It comes in two
+ * This file defines the low level 'PathAtom' for use by a PathSequence.
+ *
+ * A PathAtom is a unit of execution in a PathSequence. It comes in two
  * flavours: one for describing a method call, one for describing a property
  * assignment.
  */ 'use strict';
+/**
+ * The types of PathAtoms that are available.
+ *
+ * @enum {string}
+ * @readonly
+ * @lends PathAtom
+ */ const $cd9b4ae63795f461$var$TYPES = {
+    /** @const */ METHOD: 'method',
+    /** @const */ PROPERTY: 'property'
+};
+/**
+ * Internal common constructor definition for Canvas Atoms.
+ *
+ * @param {string} inst - The canvas context instruction.
+ * @param {*[]} args - The arguments to the instruction.
+ */ class $cd9b4ae63795f461$var$Atom {
+    constructor(inst, args){
+        /**
+     * The canvas context instruction.
+     *
+     * @private
+     * @type {string}
+     */ this.inst = inst;
+        /**
+     * The arguments to the instruction.
+     *
+     * @private
+     * @type {*[]}
+     */ this.args = args;
+    }
+}
+/**
+ * A MethodPathAtom is used for canvas context methods. The arguments will be
+ * treated as an actual array, all of which will be passed to the method when
+ * the atom is executed.
+ *
+ * @extends Atom
+ */ class $cd9b4ae63795f461$var$MethodPathAtom extends $cd9b4ae63795f461$var$Atom {
+    constructor(inst, args){
+        super(inst, args);
+        /**
+     * The type of atom.
+     *
+     * @private
+     * @type {string}
+     */ this.type = $cd9b4ae63795f461$var$TYPES.METHOD;
+    }
+    /**
+   * Execute the atom on the given context.
+   *
+   * @param {CanvasRenderingContext2D} context
+   */ execute(context) {
+        context[this.inst](...this.args);
+    }
+}
+/**
+ * A PropertyPathAtom is used for canvas context properties (a.k.a. fields).
+ * Only the first argument will be used, and will be the value assigned to the
+ * field.
+ *
+ * @extends Atom
+ */ class $cd9b4ae63795f461$var$PropertyPathAtom extends $cd9b4ae63795f461$var$Atom {
+    constructor(inst, args){
+        super(inst, args);
+        this.type = $cd9b4ae63795f461$var$TYPES.PROPERTY;
+    }
+    /**
+   * Execute the atom on the given context.
+   *
+   * @param {CanvasRenderingContext2D} context
+   */ execute(context) {
+        context[this.inst] = this.args[0];
+    }
+}
+/*
+ * This object is for demultiplexing types in the PathAtom constructor.
+ * Defined outside the constructor so it doesn't need to be redefined every
+ * time a new atom is constructed. Defined outside the class so that it is not
+ * externally exposed.
+ */ const $cd9b4ae63795f461$var$atomOf = {
+    [$cd9b4ae63795f461$var$TYPES.METHOD]: $cd9b4ae63795f461$var$MethodPathAtom,
+    [$cd9b4ae63795f461$var$TYPES.PROPERTY]: $cd9b4ae63795f461$var$PropertyPathAtom
+};
+/**
+ * The exposed PathAtom class. Results in the instantiation of either a
+ * MethodPathAtom or a PropertyPathAtom, depending on the given type.
+ *
+ * @param {string} type - Either PathAtom.METHOD or PathAtom.PROPERTY.
+ * @param {string} inst - The canvas context instruction.
+ * @param {*[]} args - The arguments to the instruction.
+ */ class $cd9b4ae63795f461$var$PathAtom {
+    constructor(type, inst, args){
+        return new $cd9b4ae63795f461$var$atomOf[type](inst, args);
+    }
+}
+/*
+ * Define the types once locally, but make them available externally as
+ * immutable properties on the class.
+ */ Object.entries($cd9b4ae63795f461$var$TYPES).forEach(([p, v])=>{
+    Object.defineProperty($cd9b4ae63795f461$var$PathAtom, p, {
+        value: v,
+        configurable: false,
+        enumerable: true,
+        writable: false
+    });
+});
+$cd9b4ae63795f461$exports = $cd9b4ae63795f461$var$PathAtom;
+
+
+const $f1e5ec5db88025fc$var$locals = Object.freeze({
+    METHODS: [
+        'rect'
+    ],
+    PROPERTIES: []
+});
+// Mark properties as intended for internal use.
+const $f1e5ec5db88025fc$var$symbols = Object.freeze({
+    sequence: Symbol.for('sequence'),
+    push: Symbol.for('push')
+});
+/**
+ * A PathSequence is a linear collection of PathAtoms, capable of being
+ * executed on a PathRenderingContext2D.
+ *
+ * @param {PathSequence} [data=null] - An unrevived (i.e. freshly transmitted)
+ * PathSequence. If present, the constructor revives the sequence. Note that
+ * an already revived PathSequence cannot be used as the argument here.
+ */ class $f1e5ec5db88025fc$var$PathSequence {
+    constructor(data = null){
+        /**
+     * The PathAtoms that form the sequence.
+     *
+     * @private
+     * @type {PathAtom[]}
+     */ this[$f1e5ec5db88025fc$var$symbols.sequence] = [];
+        // If data is present, assume it is a PathSequence that needs reviving.
+        if (data) this.fromJSON(data);
+    }
+    /**
+   * Revive the sequence from transmitted JSON data.
+   *
+   * @private
+   * @param {PathSequence} [data={}]
+   */ fromJSON(data = {
+        sequence: []
+    }) {
+        data.sequence.forEach(({ type: type , inst: inst , args: args  })=>{
+            this[$f1e5ec5db88025fc$var$symbols.push](type, inst, args);
+        });
+    }
+    /**
+   * Push a new PathAtom onto the end of the sequence.
+   *
+   * @private
+   * @param {string} type - The type of PathAtom to push.
+   * @param {string} inst - The canvas context instruction.
+   * @param {*[]} args - The arguments to the canvas context instruction.
+   */ [$f1e5ec5db88025fc$var$symbols.push](type, inst, args) {
+        this[$f1e5ec5db88025fc$var$symbols.sequence].push(new $cd9b4ae63795f461$exports(type, inst, args));
+    }
+    /**
+   * Execute the sequence on the given context.
+   *
+   * @param {PathRenderingContext2D} context
+   */ execute(context) {
+        this[$f1e5ec5db88025fc$var$symbols.sequence].forEach((a)=>a.execute(context)
+        );
+    }
+    /**
+   * Export a JSON serialized version of the sequence, ready for transmission.
+   *
+   * @return {PathSequence} In JSON serialized form.
+   */ toJSON() {
+        return {
+            isPath: true,
+            sequence: JSON.parse(JSON.stringify(this[$f1e5ec5db88025fc$var$symbols.sequence]))
+        };
+    }
+}
+$f1e5ec5db88025fc$var$locals.METHODS.forEach((m)=>{
+    Object.defineProperty($f1e5ec5db88025fc$var$PathSequence.prototype, m, {
+        value: function pushMethodCall(...args) {
+            this[$f1e5ec5db88025fc$var$symbols.push]($cd9b4ae63795f461$exports.METHOD, m, args);
+        },
+        writable: false,
+        enumerable: true,
+        configurable: false
+    });
+});
+$f1e5ec5db88025fc$var$locals.PROPERTIES.forEach((p)=>{
+    Object.defineProperty($f1e5ec5db88025fc$var$PathSequence.prototype, p, {
+        get () {
+            throw `Invalid canvas sequencer interaction, cannot get ${p}.`;
+        },
+        set (v) {
+            this[$f1e5ec5db88025fc$var$symbols.push]($cd9b4ae63795f461$exports.PROPERTY, p, [
+                v
+            ]);
+        },
+        enumerable: true,
+        configurable: false
+    });
+});
+$f1e5ec5db88025fc$exports = $f1e5ec5db88025fc$var$PathSequence;
+
+
 /**
  * The types of CanvasAtoms that are available.
  *
@@ -47,7 +262,7 @@ var $9a8fdc9f7382f5d6$exports = {};
      *
      * @private
      * @type {*[]}
-     */ this.args = args;
+     */ this.args = JSON.parse(JSON.stringify(args));
     }
 }
 /**
@@ -71,7 +286,16 @@ var $9a8fdc9f7382f5d6$exports = {};
    *
    * @param {CanvasRenderingContext2D} context
    */ execute(context) {
-        context[this.inst](...this.args);
+        if (this.args[0].isPath) {
+            const path = new Path2D();
+            const hydrateSeq = new $f1e5ec5db88025fc$exports();
+            const sequence = this.args[0].sequence;
+            hydrateSeq.fromJSON({
+                sequence: sequence
+            });
+            hydrateSeq.execute(path);
+            context[this.inst](path);
+        } else context[this.inst](...this.args);
     }
 }
 /**
@@ -365,9 +589,11 @@ const $4fabbdeef1f2d4ae$var$symbols = Object.freeze({
 $4fabbdeef1f2d4ae$exports = $4fabbdeef1f2d4ae$var$CanvasBlueprint;
 
 
+
 module.exports = {
     CanvasSequence: $663f930907ca9f24$exports,
-    CanvasBlueprint: $4fabbdeef1f2d4ae$exports
+    CanvasBlueprint: $4fabbdeef1f2d4ae$exports,
+    PathSequence: $f1e5ec5db88025fc$exports
 };
 
 
