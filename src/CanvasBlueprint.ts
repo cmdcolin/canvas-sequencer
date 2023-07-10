@@ -1,3 +1,4 @@
+//@ts-nocheck
 /*
  * Author: Michael van der Kamp
  * Date: July/August, 2018
@@ -9,14 +10,14 @@
  * be 'built' with an object defining which values should replace the tags.
  */
 
-'use strict';
+"use strict";
 
-const CanvasSequence = require('./CanvasSequence.js');
+import CanvasSequence from "./CanvasSequence";
 
 // Mark properties as intended for internal use.
 const symbols = Object.freeze({
-  sequence: Symbol.for('sequence'),
-  push:     Symbol.for('push'),
+  sequence: Symbol.for("sequence"),
+  push: Symbol.for("push"),
 });
 
 /**
@@ -40,7 +41,7 @@ const symbols = Object.freeze({
  * performed, or the appropriate value.
  */
 function replaceTags(str, values) {
-  const tag = str.replace(/^\{|\}$/gu, '');
+  const tag = str.replace(/^\{|\}$/gu, "");
   if (tag !== str) {
     return values.hasOwnProperty(tag) ? values[tag] : tag;
   }
@@ -54,7 +55,7 @@ function replaceTags(str, values) {
  *
  * @extends CanvasSequence
  */
-class CanvasBlueprint extends CanvasSequence {
+export default class CanvasBlueprint extends CanvasSequence {
   /**
    * Build the blueprint using the provided values.
    *
@@ -73,8 +74,8 @@ class CanvasBlueprint extends CanvasSequence {
   build(values = {}) {
     const seq = new CanvasSequence();
     this[symbols.sequence].forEach(({ type, inst, args }) => {
-      const realArgs = args.map(v => {
-        return (typeof v === 'string') ? replaceTags(v, values) : v;
+      const realArgs = args.map((v) => {
+        return typeof v === "string" ? replaceTags(v, values) : v;
       });
       seq[symbols.push](type, inst, realArgs);
     });
@@ -87,9 +88,6 @@ class CanvasBlueprint extends CanvasSequence {
    * @throws TypeError
    */
   execute() {
-    throw new TypeError('Cannot execute a blueprint.');
+    throw new TypeError("Cannot execute a blueprint.");
   }
 }
-
-module.exports = CanvasBlueprint;
-

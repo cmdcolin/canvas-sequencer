@@ -1,3 +1,4 @@
+//@ts-nocheck
 /*
  * Author: Michael van der Kamp
  * Date: July/August, 2018
@@ -9,7 +10,7 @@
  * assignment.
  */
 
-'use strict';
+"use strict";
 
 /**
  * The types of CanvasAtoms that are available.
@@ -19,8 +20,8 @@
  * @lends CanvasAtom
  */
 const TYPES = {
-  /** @const */ METHOD:   'method',
-  /** @const */ PROPERTY: 'property',
+  /** @const */ METHOD: "method",
+  /** @const */ PROPERTY: "property",
 };
 
 /**
@@ -29,7 +30,7 @@ const TYPES = {
  * @param {string} inst - The canvas context instruction.
  * @param {*[]} args - The arguments to the instruction.
  */
-class Atom {
+export default class Atom {
   constructor(inst, args) {
     /**
      * The canvas context instruction.
@@ -109,7 +110,7 @@ class PropertyCanvasAtom extends Atom {
  * externally exposed.
  */
 const atomOf = {
-  [TYPES.METHOD]:   MethodCanvasAtom,
+  [TYPES.METHOD]: MethodCanvasAtom,
   [TYPES.PROPERTY]: PropertyCanvasAtom,
 };
 
@@ -133,12 +134,9 @@ class CanvasAtom {
  */
 Object.entries(TYPES).forEach(([p, v]) => {
   Object.defineProperty(CanvasAtom, p, {
-    value:        v,
+    value: v,
     configurable: false,
-    enumerable:   true,
-    writable:     false,
+    enumerable: true,
+    writable: false,
   });
 });
-
-module.exports = CanvasAtom;
-

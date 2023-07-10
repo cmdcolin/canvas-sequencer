@@ -1,3 +1,4 @@
+//@ts-nocheck
 /*
  * Author: Michael van der Kamp
  * Date: July/August, 2018
@@ -5,77 +6,77 @@
  * This file provides the definition of the CanvasSequence class.
  */
 
-'use strict';
+"use strict";
 
-const CanvasAtom = require('./CanvasAtom.js');
+import CanvasAtom from "./CanvasAtom";
 
 const locals = Object.freeze({
   METHODS: [
-    'addHitRegion',
-    'arc',
-    'arcTo',
-    'beginPath',
-    'bezierCurveTo',
-    'clearHitRegions',
-    'clearRect',
-    'clip',
-    'closePath',
-    'drawFocusIfNeeded',
-    'drawImage',
-    'ellipse',
-    'fill',
-    'fillRect',
-    'fillText',
-    'lineTo',
-    'moveTo',
-    'putImageData',
-    'quadraticCurveTo',
-    'rect',
-    'removeHitRegion',
-    'resetTransform',
-    'restore',
-    'rotate',
-    'save',
-    'scale',
-    'scrollPathIntoView',
-    'setLineDash',
-    'setTransform',
-    'stroke',
-    'strokeRect',
-    'strokeText',
-    'transform',
-    'translate',
+    "addHitRegion",
+    "arc",
+    "arcTo",
+    "beginPath",
+    "bezierCurveTo",
+    "clearHitRegions",
+    "clearRect",
+    "clip",
+    "closePath",
+    "drawFocusIfNeeded",
+    "drawImage",
+    "ellipse",
+    "fill",
+    "fillRect",
+    "fillText",
+    "lineTo",
+    "moveTo",
+    "putImageData",
+    "quadraticCurveTo",
+    "rect",
+    "removeHitRegion",
+    "resetTransform",
+    "restore",
+    "rotate",
+    "save",
+    "scale",
+    "scrollPathIntoView",
+    "setLineDash",
+    "setTransform",
+    "stroke",
+    "strokeRect",
+    "strokeText",
+    "transform",
+    "translate",
   ],
 
   PROPERTIES: [
-    'direction',
-    'fillStyle',
-    'filter',
-    'font',
-    'globalAlpha',
-    'globalCompositeOperation',
-    'imageSmoothingEnabled',
-    'imageSmoothingQuality',
-    'lineCap',
-    'lineDashOffset',
-    'lineJoin',
-    'lineWidth',
-    'miterLimit',
-    'shadowBlur',
-    'shadowColor',
-    'shadowOffsetX',
-    'shadowOffsetY',
-    'strokeStyle',
-    'textAlign',
-    'textBaseline',
+    "direction",
+    "fillStyle",
+    "filter",
+    "font",
+    "globalAlpha",
+    "globalCompositeOperation",
+    "imageSmoothingEnabled",
+    "imageSmoothingQuality",
+    "lineCap",
+    "lineDashOffset",
+    "lineJoin",
+    "lineWidth",
+    "miterLimit",
+    "shadowBlur",
+    "shadowColor",
+    "shadowOffsetX",
+    "shadowOffsetY",
+    "strokeStyle",
+    "textAlign",
+    "textBaseline",
   ],
 });
 
 // Mark properties as intended for internal use.
 const symbols = Object.freeze({
-  sequence: Symbol.for('sequence'),
-  push:     Symbol.for('push'),
-  fromJSON: Symbol.for('fromJSON'),
+  sequence: Symbol.for("sequence"),
+  push: Symbol.for("push"),
+  fromJSON: Symbol.for("fromJSON"),
 });
 
 /**
@@ -86,7 +87,7 @@ const symbols = Object.freeze({
  * CanvasSequence. If present, the constructor revives the sequence. Note that
  * an already revived CanvasSequence cannot be used as the argument here.
  */
-class CanvasSequence {
+export default class CanvasSequence {
   constructor(data = null) {
     /**
      * The CanvasAtoms that form the sequence.
@@ -131,7 +132,7 @@ class CanvasSequence {
    */
   execute(context) {
     context.save();
-    this[symbols.sequence].forEach(a => a.execute(context));
+    this[symbols.sequence].forEach((a) => a.execute(context));
     context.restore();
   }
 
@@ -145,25 +146,26 @@ class CanvasSequence {
   }
 }
 
-locals.METHODS.forEach(m => {
+locals.METHODS.forEach((m) => {
   Object.defineProperty(CanvasSequence.prototype, m, {
     value: function pushMethodCall(...args) {
       this[symbols.push](CanvasAtom.METHOD, m, args);
     },
-    writable:     false,
-    enumerable:   true,
+    writable: false,
+    enumerable: true,
     configurable: false,
   });
 });
 
-locals.PROPERTIES.forEach(p => {
+locals.PROPERTIES.forEach((p) => {
   Object.defineProperty(CanvasSequence.prototype, p, {
-    get()  { throw `Invalid canvas sequencer interaction, cannot get ${p}.`; },
-    set(v) { this[symbols.push](CanvasAtom.PROPERTY, p, [v]); },
-    enumerable:   true,
+    get() {
+      throw `Invalid canvas sequencer interaction, cannot get ${p}.`;
+    },
+    set(v) {
+      this[symbols.push](CanvasAtom.PROPERTY, p, [v]);
+    },
+    enumerable: true,
     configurable: false,
   });
 });
-
-module.exports = CanvasSequence;
-
