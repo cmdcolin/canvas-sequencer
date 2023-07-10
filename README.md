@@ -8,12 +8,12 @@ Store, serialize, parse, and execute series of canvas context instructions!
 
 ## Contents
 
-* [Why](#why)
-* [Importing](#importing)
-* [CanvasSequence API](#canvassequence-api)
-* [CanvasBlueprint](#canvasblueprint-api)
-* [Limitations](#limitations)
-* [What's new in 2.0](#changes)
+- [Why](#why)
+- [Importing](#importing)
+- [CanvasSequence API](#canvassequence-api)
+- [CanvasBlueprint](#canvasblueprint-api)
+- [Limitations](#limitations)
+- [What's new in 2.0](#changes)
 
 ## Why
 
@@ -25,7 +25,7 @@ Suppose, however, that you wish to be able to dynamically define instructions
 from the server, and have those instructions executed on the canvas contexts of
 your clients. One option would be to wrap the instructions up in a string on the
 server, distribute the string, then have the clients call `eval()` on the
-string.  This is error-prone and risky however, and exposes you to all the
+string. This is error-prone and risky however, and exposes you to all the
 incumbent problems of the `eval()` function.
 
 With `canvas-sequencer` you can package those instructions up in a sequence and
@@ -38,7 +38,7 @@ issues with the `eval()` technique fade away.
 Server side, or in a Node environment.
 
 ```javascript
-const { CanvasSequence, CanvasBlueprint } = require('canvas-sequencer');
+const { CanvasSequence, CanvasBlueprint } = require('canvas-sequencer')
 ```
 
 The code is also available pre-bundled, via `parcel-bundler`. You should
@@ -46,7 +46,7 @@ probably create your own bundle though, so that you have control over browser
 targets, etc.
 
 ```javascript
-const { CanvasSequence, CanvasBlueprint } = require('canvas-sequencer/dist');
+const { CanvasSequence, CanvasBlueprint } = require('canvas-sequencer/dist')
 ```
 
 Client side, to access the bundled code in a script tag:
@@ -60,7 +60,7 @@ Client side, to access the bundled code in a script tag:
 ### Creating a sequence:
 
 ```javascript
-const seq = new CanvasSequence();
+const seq = new CanvasSequence()
 ```
 
 ### Defining instructions:
@@ -72,13 +72,13 @@ normal `CanvasRenderingContext2D` object. Each instruction will be added onto
 the end of the sequence.
 
 ```javascript
-seq.beginPath();
-seq.arc(25,25,42, 0, 2 * Math.PI);
-seq.fillStyle = 'green';
-seq.fill();
-seq.lineWidth = 15;
-seq.closePath();
-seq.stroke();
+seq.beginPath()
+seq.arc(25, 25, 42, 0, 2 * Math.PI)
+seq.fillStyle = 'green'
+seq.fill()
+seq.lineWidth = 15
+seq.closePath()
+seq.stroke()
 ```
 
 ### Transmitting the sequence
@@ -90,7 +90,7 @@ sequences. Just send the sequence object as you would any other piece of
 serializable data.
 
 ```javascript
-emitter.emit('new-sequence', seq);
+emitter.emit('new-sequence', seq)
 ```
 
 ### Unpacking the sequence.
@@ -101,7 +101,7 @@ object to the constructor:
 
 ```javascript
 // Assumes that you have recieve the packaged sequence in a 'data' variable.
-const seq = new CanvasSequence(data);
+const seq = new CanvasSequence(data)
 ```
 
 ### Executing the sequence.
@@ -109,12 +109,12 @@ const seq = new CanvasSequence(data);
 You can execute the sequence on any `CanvasRenderingContext2D` as such:
 
 ```javascript
-const ctx1 = document.querySelector('#canvas1').getContext('2d');
-seq.execute(ctx1);
+const ctx1 = document.querySelector('#canvas1').getContext('2d')
+seq.execute(ctx1)
 
 // And again on another context!
-const ctx2 = document.querySelector('#canvas2').getContext('2d');
-seq.execute(ctx2);
+const ctx2 = document.querySelector('#canvas2').getContext('2d')
+seq.execute(ctx2)
 ```
 
 ## CanvasBlueprint API
@@ -138,16 +138,16 @@ context object, just add an extra set of curly braces.
 Here's an example that demonstrates the complete system in action:
 
 ```javascript
-const { CanvasBlueprint } = require('canvas-sequencer');
-const values = { x: 250, y: 99 };
-const bp = new CanvasBlueprint();
-const ctx = document.querySelector('#canvas1').getContext('2d');
+const { CanvasBlueprint } = require('canvas-sequencer')
+const values = { x: 250, y: 99 }
+const bp = new CanvasBlueprint()
+const ctx = document.querySelector('#canvas1').getContext('2d')
 
-bp.fillText('y',7,8);
-bp.fillText('{{x}}',5,6);
-bp.fillRect('{x}','{y}',30,40);
+bp.fillText('y', 7, 8)
+bp.fillText('{{x}}', 5, 6)
+bp.fillRect('{x}', '{y}', 30, 40)
 
-bp.build(values).execute(ctx);
+bp.build(values).execute(ctx)
 
 /*
  * The result will be the same as if you had done:
@@ -158,11 +158,11 @@ bp.build(values).execute(ctx);
  */
 
 // If you later change the x,y values:
-values.x = 101;
-values.y = 42;
+values.x = 101
+values.y = 42
 
 // You can simply rebuild and execute:
-bp.build(values).execute(ctx);
+bp.build(values).execute(ctx)
 
 /*
  * Now the result will be the same as if you had done:
@@ -181,13 +181,13 @@ regular `CanvasSequence` object:
 Transmitting:
 
 ```javascript
-emitter.emit('new-blueprint', bp);
+emitter.emit('new-blueprint', bp)
 ```
 
 Unpacking:
 
 ```javascript
-const bp = new CanvasBlueprint(data);
+const bp = new CanvasBlueprint(data)
 ```
 
 ## Limitations
@@ -204,16 +204,16 @@ to make sure this can happen.
 
 ## Changes
 
-- __3.1.0__ Switch from parcel-bunlder to parcel for distribution, add github CI
-- __3.0.6__ Fix typo in new instruction support
-- __3.0.5__ Slight performance improvement, fixed a buggy test, added support
+- **3.1.0** Switch from parcel-bunlder to parcel for distribution, add github CI
+- **3.0.6** Fix typo in new instruction support
+- **3.0.5** Slight performance improvement, fixed a buggy test, added support
   for some newer experimental instructions.
-- __3.0.4__ Added badges, fixed up the README a bit.
-- __3.0.3__ Fixed a minor bug in the CanvasSequence class, improved test
+- **3.0.4** Added badges, fixed up the README a bit.
+- **3.0.3** Fixed a minor bug in the CanvasSequence class, improved test
   coverage, update dependencies.
-- __3.0.2__ Switched to `parcel-bundler` for the bundle. Simpler to use, more
+- **3.0.2** Switched to `parcel-bundler` for the bundle. Simpler to use, more
   efficient.
-- __3.0.1__ Added babelify transform for the bundle.
+- **3.0.1** Added babelify transform for the bundle.
 - CanvasSequencer was renamed to CanvasSequence.
 - Internal documentation was added.
 
@@ -221,4 +221,3 @@ to make sure this can happen.
 
 At some point I will get around to testing the API with complex arguments (e.g.
 `Path` objects).
-

@@ -10,7 +10,7 @@
  * assignment.
  */
 
-"use strict";
+'use strict'
 
 /**
  * The types of CanvasAtoms that are available.
@@ -20,9 +20,9 @@
  * @lends CanvasAtom
  */
 const TYPES = {
-  /** @const */ METHOD: "method",
-  /** @const */ PROPERTY: "property",
-};
+  /** @const */ METHOD: 'method',
+  /** @const */ PROPERTY: 'property',
+}
 
 /**
  * Internal common constructor definition for Canvas Atoms.
@@ -38,7 +38,7 @@ export default class Atom {
      * @private
      * @type {string}
      */
-    this.inst = inst;
+    this.inst = inst
 
     /**
      * The arguments to the instruction.
@@ -46,7 +46,7 @@ export default class Atom {
      * @private
      * @type {*[]}
      */
-    this.args = args;
+    this.args = args
   }
 }
 
@@ -59,7 +59,7 @@ export default class Atom {
  */
 class MethodCanvasAtom extends Atom {
   constructor(inst, args) {
-    super(inst, args);
+    super(inst, args)
 
     /**
      * The type of atom.
@@ -67,7 +67,7 @@ class MethodCanvasAtom extends Atom {
      * @private
      * @type {string}
      */
-    this.type = TYPES.METHOD;
+    this.type = TYPES.METHOD
   }
 
   /**
@@ -76,7 +76,7 @@ class MethodCanvasAtom extends Atom {
    * @param {CanvasRenderingContext2D} context
    */
   execute(context) {
-    context[this.inst](...this.args);
+    context[this.inst](...this.args)
   }
 }
 
@@ -89,8 +89,8 @@ class MethodCanvasAtom extends Atom {
  */
 class PropertyCanvasAtom extends Atom {
   constructor(inst, args) {
-    super(inst, args);
-    this.type = TYPES.PROPERTY;
+    super(inst, args)
+    this.type = TYPES.PROPERTY
   }
 
   /**
@@ -99,7 +99,7 @@ class PropertyCanvasAtom extends Atom {
    * @param {CanvasRenderingContext2D} context
    */
   execute(context) {
-    context[this.inst] = this.args[0];
+    context[this.inst] = this.args[0]
   }
 }
 
@@ -112,7 +112,7 @@ class PropertyCanvasAtom extends Atom {
 const atomOf = {
   [TYPES.METHOD]: MethodCanvasAtom,
   [TYPES.PROPERTY]: PropertyCanvasAtom,
-};
+}
 
 /**
  * The exposed CanvasAtom class. Results in the instantiation of either a
@@ -124,7 +124,7 @@ const atomOf = {
  */
 class CanvasAtom {
   constructor(type, inst, args) {
-    return new atomOf[type](inst, args);
+    return new atomOf[type](inst, args)
   }
 }
 
@@ -138,5 +138,5 @@ Object.entries(TYPES).forEach(([p, v]) => {
     configurable: false,
     enumerable: true,
     writable: false,
-  });
-});
+  })
+})

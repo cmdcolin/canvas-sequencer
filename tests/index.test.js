@@ -4,12 +4,11 @@
 
 /* global test, expect */
 
-'use strict';
+'use strict'
 
-const { CanvasSequence, CanvasBlueprint } = require('../index.js');
+const { CanvasSequence, CanvasBlueprint } = require('../index.js')
 
 test('Classes are available', () => {
-  expect(CanvasSequence).toBeInstanceOf(Function);
-  expect(CanvasBlueprint).toBeInstanceOf(Function);
-});
-
+  expect(CanvasSequence).toBeInstanceOf(Function)
+  expect(CanvasBlueprint).toBeInstanceOf(Function)
+})
